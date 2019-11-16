@@ -17,20 +17,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.5.3</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.odiszapc</groupId>
             <artifactId>nginxparser</artifactId>
             <version>0.9.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -82,13 +71,6 @@
                 <configuration>
                     <minimizeJar>false</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <artifactSet>
-                        <includes>
-                            <include>org.antlr:antlr4-runtime</include>
-                            <include>com.github.odiszapc:nginxparser</include>
-                            <include>org.apache.commons:commons-lang3</include>
-                        </includes>
-                    </artifactSet>
                 </configuration>
             </plugin>
         </plugins>
