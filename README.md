@@ -5,7 +5,7 @@ Enterprise grade scripting plugin for Minecraft servers.
 ## What's working?
 - Basic commands
 - Command aliases
-- Command effects (text, raw_text)
+- Command effects (text, raw_text, set, increase, stop)
 
 ## TODO
 - More robust script loading from scripts/ directory instead of one test.conf file
