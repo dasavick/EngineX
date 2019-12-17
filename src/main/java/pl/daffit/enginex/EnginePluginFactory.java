@@ -65,6 +65,10 @@ public final class EnginePluginFactory {
 
         for (NgxEntry entry : commandBlocks) {
 
+            if (entry instanceof NgxComment) {
+                continue;
+            }
+
             NgxBlock commandBlock = (NgxBlock) entry;
             Collection<NgxToken> tokens = commandBlock.getTokens();
             if (tokens.size() < 2) {
@@ -107,6 +111,10 @@ public final class EnginePluginFactory {
         EngineX.logger().info("Trying to load " + actionBlocks.size() + " actions: " + actionBlocks);
 
         for (NgxEntry entry : actionBlocks) {
+
+            if (entry instanceof NgxComment) {
+                continue;
+            }
 
             NgxBlock actionBlock = (NgxBlock) entry;
             Collection<NgxToken> tokens = actionBlock.getTokens();
@@ -172,30 +180,79 @@ public final class EnginePluginFactory {
             throw new EngineException("Empty 'do' section in action: " + actionBlock);
         }
 
-        EngineX.logger().info("Trying to load " + effectEntries.size() + " effects: " + effectEntries);
-        for (NgxEntry effectEntry : effectEntries) {
+        List<NgxToken> tokens = new ArrayList<>(effectsBlock.getTokens());
+        if ((tokens.size() == 2) && "indexed".equals(tokens.get(1).getToken())) {
+            EngineX.logger().info("Trying to load indexed " + effectEntries.size() + " effects: " + effectEntries);
+            for (NgxEntry effectEntry : effectEntries) {
 
-            NgxParam effect = (NgxParam) effectEntry;
-            String effectName = effect.getName();
-            List<String> effectValues = effect.getValues();
+                if (effectEntry instanceof NgxComment) {
+                    continue;
+                }
 
-            if (!EngineEffectRegistry.isEffect(effectName)) {
-                throw new EngineException(effectName + " is not valid effect name: " + effectEntry);
+                NgxParam effect = (NgxParam) effectEntry;
+                String effectIndex = effect.getName();
+                List<String> values = effect.getValues();
+                String effectName = values.get(0);
+                List<String> effectValues = values.subList(1, values.size());
+
+                int index;
+                try {
+                    index = Integer.parseInt(effectIndex);
+                } catch (NumberFormatException exception) {
+                    throw new EngineException("Cannot parse index: " + effectIndex);
+                }
+
+                if (!EngineEffectRegistry.isEffect(effectName)) {
+                    throw new EngineException(effectName + " is not valid effect name: " + effectEntry);
+                }
+
+                EngineEffect engineEffect = EngineEffectRegistry.getEffect(effectName);
+                String[] varargs = effectValues.stream().map(e -> StringUtils.strip(e, "\"")).toArray(String[]::new);
+                Class[] varargMap = engineEffect.getVarargMap();
+
+                if (varargs.length != varargMap.length) {
+                    throw new EngineException("Effect " + effectName + " accepts only " + varargMap.length
+                            + " arguments. Argument map: " + Arrays.toString(varargMap) + ". Provided arguments: " + Arrays.toString(varargs));
+                }
+
+                engineEffect.setIndex(index);
+                engineEffect.setVarargs(varargs);
+                engineEffect.setName(effectName);
+                effects.add(engineEffect);
+                EngineX.logger().info("Loaded effect '" + effectName + "': " + Arrays.toString(varargs));
             }
+        } else if (tokens.size() == 1) {
+            EngineX.logger().info("Trying to load " + effectEntries.size() + " effects: " + effectEntries);
+            for (NgxEntry effectEntry : effectEntries) {
 
-            EngineEffect engineEffect = EngineEffectRegistry.getEffect(effectName);
-            String[] varargs = effectValues.stream().map(e -> StringUtils.strip(e, "\"")).toArray(String[]::new);
-            Class[] varargMap = engineEffect.getVarargMap();
+                if (effectEntry instanceof NgxComment) {
+                    continue;
+                }
 
-            if (varargs.length != varargMap.length) {
-                throw new EngineException("Effect " + effectName + " accepts only " + varargMap.length
-                        + " arguments. Argument map: " + Arrays.toString(varargMap) + ". Provided arguments: " + Arrays.toString(varargs));
+                NgxParam effect = (NgxParam) effectEntry;
+                String effectName = effect.getName();
+                List<String> effectValues = effect.getValues();
+
+                if (!EngineEffectRegistry.isEffect(effectName)) {
+                    throw new EngineException(effectName + " is not valid effect name: " + effectEntry);
+                }
+
+                EngineEffect engineEffect = EngineEffectRegistry.getEffect(effectName);
+                String[] varargs = effectValues.stream().map(e -> StringUtils.strip(e, "\"")).toArray(String[]::new);
+                Class[] varargMap = engineEffect.getVarargMap();
+
+                if (varargs.length != varargMap.length) {
+                    throw new EngineException("Effect " + effectName + " accepts only " + varargMap.length
+                            + " arguments. Argument map: " + Arrays.toString(varargMap) + ". Provided arguments: " + Arrays.toString(varargs));
+                }
+
+                engineEffect.setVarargs(varargs);
+                engineEffect.setName(effectName);
+                effects.add(engineEffect);
+                EngineX.logger().info("Loaded effect '" + effectName + "': " + Arrays.toString(varargs));
             }
-
-            engineEffect.setVarargs(varargs);
-            engineEffect.setName(effectName);
-            effects.add(engineEffect);
-            EngineX.logger().info("Loaded effect '" + effectName + "': " + Arrays.toString(varargs));
+        } else {
+            throw new EngineException("To much tokens in 'do' section in action: " + actionBlock);
         }
 
         return effects;

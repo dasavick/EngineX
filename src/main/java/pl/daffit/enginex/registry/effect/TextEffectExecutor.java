@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import pl.daffit.enginex.EngineException;
 import pl.daffit.enginex.effect.EngineEffectExecutor;
 import pl.daffit.enginex.execution.ExecutionContext;
+import pl.daffit.enginex.variable.VariableUtils;
 
 public class TextEffectExecutor implements EngineEffectExecutor {
 
@@ -25,7 +26,10 @@ public class TextEffectExecutor implements EngineEffectExecutor {
             return false;
         }
 
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', String.valueOf(varargs[0])));
+        String text = String.valueOf(varargs[0]);
+        text = VariableUtils.replaceVariables(context, text);
+
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', text));
         return true;
     }
 }

@@ -39,12 +39,6 @@ command "g" "guild" "gildia" {
             text "&cWow ju admin?";
         }
     }
-
-    action "plugin" {
-        do {
-            text "&e$plugin.name $plugin.version by $plugin.author";
-        }
-    }
 }
 
 command "test" {
@@ -53,6 +47,24 @@ command "test" {
         do {
             text "&c&lHello World!";
             raw_text "&c&lHello World!";
+        }
+    }
+}
+
+command "test2" {
+
+    action {
+        do indexed {
+            100 text "Hello $sender#getName!";
+            200 set _ 0;
+            300 text "$_";
+            400 increase _ 1;
+            401 increase _ 0.5;
+            500 text "woah! $_";
+            401 increase _ -0.5;
+            501 stop;
+            600 increase _ 0.5;
+            #600 when_less _ 10 -> goto 300;
         }
     }
 }

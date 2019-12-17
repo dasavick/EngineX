@@ -38,8 +38,9 @@ public class EngineCommandRunner extends BukkitCommand {
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
 
-        ExecutionContext context = new ExecutionContext();
+        ExecutionContext context = EngineX.createContext();
         context.setSender(sender);
+        context.setVariable("sender", sender, CommandSender.class);
 
         try {
             EngineCommandAction action;
@@ -61,6 +62,9 @@ public class EngineCommandRunner extends BukkitCommand {
             // run action
             List<EngineEffect> effects = action.getEffects();
             for (EngineEffect effect : effects) {
+                if (!context.isExecution()) {
+                    break;
+                }
                 effect.getExecutor().execute(context, effect.getVarargs());
             }
 
