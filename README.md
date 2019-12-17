@@ -11,6 +11,8 @@ Enterprise grade scripting plugin for Minecraft servers.
 - More robust script loading from scripts/ directory instead of one test.conf file
 - Command permissions checking
 - Runtime load/unload of scripts using /enginex command
+- Implement example megakilof plugin
+- Implement example guilds plugin
 
 ### Example test.conf
 ```
